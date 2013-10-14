@@ -30,6 +30,11 @@ void MyRel::add(std::pair<int,int> P)
 
 void MyRel::add(std::set<std::pair<int,int>> PSet)
 {
+	//for(std::set<std::pair<int, int>>::iterator i = PSet.begin(); i != PSet.end(); i++)
+	//{
+	//	//if(!q((*i)))
+	//		//mPairs.insert((*i));
+	//}
 	mPairs.insert(PSet.begin(), PSet.end());
 }
 
@@ -81,4 +86,51 @@ MyRel MyRel::symm_closure()
 		}
 	}
 	return symm; // Lovar Inge, ingen copy paste!
+}
+
+MyRel MyRel::comp(MyRel S)
+{
+	std::set<int> newSet;
+	
+	newSet = mDomainSet;
+	newSet.insert(S.mDomainSet.begin(), S.mDomainSet.end());
+	
+	MyRel _comp(newSet);
+
+	_comp.add(mPairs);
+	_comp.add(S.mPairs);
+
+	return _comp;
+}
+
+void MyRel::append(MyRel S)
+{
+	add(S.mPairs);
+}
+
+MyRel MyRel::trans_closure()
+{
+	MyRel trans(domain());
+		  trans.add(pairSet());
+	
+	std::pair<int, int> transPair;
+	std::set<std::pair<int, int>> temp = trans.mPairs;
+
+	for(std::set<std::pair<int, int>>::iterator i = temp.begin(); i != temp.end(); i++)
+	{
+	
+		for(std::set<std::pair<int, int>>::iterator j = temp.begin(); j != temp.end(); j++)
+		{
+			/*for(std::set<std::pair<int, int>>::iterator k = trans.mPairs.begin(); k != trans.mPairs.end(); k++)
+			{*/
+			if ( (*i).second == (*j).first )
+			{
+				transPair.first = (*i).first;
+				transPair.second = (*j).second;
+				trans.add(transPair);
+			}
+			
+		}
+	}
+	return trans;
 }
