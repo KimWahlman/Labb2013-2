@@ -11,8 +11,11 @@ int main()
 	ints.insert(arrays, arrays+6);
 	
 	MyRel R(ints);
-	R.add(std::pair<int, int>(R.domain[0], R.domain[5]));
-
-	
+	R.add( std::pair<int, int>( ( *R.domain( ).find( 1 ) ), ( *R.domain( ).find( 2 ) ) ) );
+	R.add( std::pair<int, int>( ( *R.domain( ).find( 3 ) ), ( *R.domain( ).find( 4 ) ) ) );
+	R.add( std::pair<int, int>( ( *R.domain( ).find( 5 ) ), ( *R.domain( ).find( 6 ) ) ) );
+	//MyRel T = R.refl_closure();
+	MyRel S = R.symm_closure();
+	S = S.refl_closure();
 	return 0;
 }
