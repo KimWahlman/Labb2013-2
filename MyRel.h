@@ -23,15 +23,15 @@ public:
 	//Pairset
 	std::set<std::pair<int, int>> pairSet();
 
-	MyRel refl_closure();
-	MyRel symm_closure();
-	MyRel  comp(MyRel S); // Skapar sammansättningen av en relation med en annan relation.
+	MyRel  refl_closure();
+	MyRel  symm_closure();
+	MyRel   comp(MyRel S); // Skapar sammansättningen av en relation med en annan relation.
+	MyRel trans_closure();
 
 	
 private:
 	std::set<int> mDomainSet;
 	std::set<std::pair<int, int>> mPairs;
-	int mN;
 };
 
 #endif // MYREL_H
