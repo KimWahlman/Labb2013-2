@@ -109,7 +109,7 @@ void MyRel::append(MyRel S)
 MyRel MyRel::trans_closure()
 {
 	MyRel trans(domain());
-              trans.add(pairSet());
+		  trans.add(pairSet());
 	
 	std::pair<int, int> transPair;
 	std::set<std::pair<int, int>> temp = trans.mPairs;
@@ -122,9 +122,17 @@ MyRel MyRel::trans_closure()
 			{
 				transPair.first = (*i).first;
 				transPair.second = (*j).second;
-				trans.add(transPair);
+
+				if(!trans.q(transPair))
+				{
+					trans.add(transPair);
+					
+					i = temp.begin();
+					j = temp.begin();
+				}
 			}
 		}
+		
 	}
 	return trans;
 }
