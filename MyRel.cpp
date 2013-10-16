@@ -6,14 +6,17 @@ MyRel::MyRel()
 	
 }
 
+// Sätt mDomainSet till A
 MyRel::MyRel(std::set<int> A)
 {
 	mDomainSet = A;
 }
 
+// Töm våra std::set<...>
 MyRel::~MyRel()
 {
 	mDomainSet.clear();
+	mPairs.clear();
 }
 
 // Metod som retunerar relations domänmängder
@@ -30,11 +33,6 @@ void MyRel::add(std::pair<int,int> P)
 
 void MyRel::add(std::set<std::pair<int,int>> PSet)
 {
-	//for(std::set<std::pair<int, int>>::iterator i = PSet.begin(); i != PSet.end(); i++)
-	//{
-	//	//if(!q((*i)))
-	//		//mPairs.insert((*i));
-	//}
 	mPairs.insert(PSet.begin(), PSet.end());
 }
 
@@ -121,8 +119,6 @@ MyRel MyRel::trans_closure()
 	
 		for(std::set<std::pair<int, int>>::iterator j = temp.begin(); j != temp.end(); j++)
 		{
-			/*for(std::set<std::pair<int, int>>::iterator k = trans.mPairs.begin(); k != trans.mPairs.end(); k++)
-			{*/
 			if ( (*i).second == (*j).first )
 			{
 				transPair.first = (*i).first;
@@ -133,4 +129,24 @@ MyRel MyRel::trans_closure()
 		}
 	}
 	return trans;
+}
+
+void MyRel::printSet()
+{
+	std::cout << "Set: ";
+	for(std::set<int>::iterator i = mDomainSet.begin(); i != mDomainSet.end(); i++)
+	{
+		std::cout << (*i) << " ";
+	}
+	std::cout << std::endl;
+}
+
+void MyRel::printPairs()
+{
+	std::cout << "Pairs: ";
+	for(std::set<std::pair<int, int>>::iterator i = mPairs.begin(); i != mPairs.end(); i++)
+	{
+		std::cout << "{" << (*i).first << ", " << (*i).second << "} ";
+	}
+	std::cout << std::endl;
 }
