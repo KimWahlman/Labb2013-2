@@ -17,7 +17,9 @@ public:
 	void add(std::pair<int, int> P);
 	void add(std::set<std::pair<int,int>> PSet);
 	void append(MyRel S);
-	
+	void printPairs();
+	void printSet();
+
 	bool q(std::pair<int, int> P);
 	
 	//Pairset
