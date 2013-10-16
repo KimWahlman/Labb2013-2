@@ -1,57 +1,160 @@
 #include "MyRel.h"
 #include <iostream>
-#include <string>
 
-int main()
+MyRel::MyRel()
 {
-	// Domänermängder
-	std::set<int> ints;
 
-	int arrays[] = { 1, 2, 3, 4, 5, 6 };
-	ints.insert(arrays, arrays+6);
-	
-	MyRel Bas(ints);
-	
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 2 ) ), ( *Bas.domain( ).find( 4 ) ) ) );
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 4 ) ), ( *Bas.domain( ).find( 6 ) ) ) );
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 6 ) ), ( *Bas.domain( ).find( 1 ) ) ) );
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 1 ) ), ( *Bas.domain( ).find( 2 ) ) ) );
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 3 ) ), ( *Bas.domain( ).find( 4 ) ) ) );
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 5 ) ), ( *Bas.domain( ).find( 6 ) ) ) );
-	Bas.add( std::pair<int, int>( ( *Bas.domain( ).find( 2 ) ), ( *Bas.domain( ).find( 3 ) ) ) );
+}
 
-	std::cout << "Grund settet\n";
-	Bas.printSet();
-	Bas.printPairs();
+// Sätt mDomainSet till A
+MyRel::MyRel(std::set<int> A)
+{
+        mDomainSet = A;
+}
 
-	MyRel Refl = Bas.refl_closure();
-	std::cout << "\n\nReflektiva settet\n";
-	Refl.printSet();
-	Refl.printPairs();
+// Töm våra std::set<...>
+MyRel::~MyRel()
+{
+        mDomainSet.clear();
+        mPairs.clear();
+}
 
-	MyRel  Symm = Bas.symm_closure();
-	std::cout << "\n\nSymmetriska settet\n";
-	Symm.printSet();
-	Symm.printPairs();
+// Metod som retunerar relations domänmängder
+std::set<int> MyRel::domain()
+{
+        return mDomainSet;
+}
 
-	MyRel Trans = Bas.trans_closure();
-	std::cout << "\n\nTransitiva settet\n";
-	Trans.printSet();
-	Trans.printPairs();
-	
-	MyRel Append = Bas;
-		  Append.append(Trans);
-	std::cout << "\n\nAlla par fran MyRel Trans laggs i Append\n";
-	Append.printSet();
-	Append.printPairs();
-	
-	MyRel Comp = Symm.comp(Refl);
-	std::cout << "\n\nSammansattning mellan Symm och Refl\n";
-	Comp.printSet();
-	Comp.printPairs();
+void MyRel::add(std::pair<int,int> P)
+{
+        if(!q(P))
+                mPairs.insert(P);
+}
 
-	int x;
-	std::cin >> x;
+void MyRel::add(std::set<std::pair<int,int>> PSet)
+{
+        mPairs.insert(PSet.begin(), PSet.end());
+}
 
-	return 0;
+bool MyRel::q(std::pair<int, int> P)
+{
+        for(std::set<std::pair<int, int>>::iterator i = mPairs.begin(); i != mPairs.end(); i++)
+        {
+                if((*i).first == P.first && (*i).second == P.second)
+                        return true;
+        }
+        return false;
+}
+
+std::set<std::pair<int, int>> MyRel::pairSet()
+{
+        return mPairs;
+}
+
+MyRel MyRel::refl_closure()
+{
+        MyRel refl(domain());
+        refl.add(pairSet());
+        for(std::set<std::pair<int, int>>::iterator i = refl.mPairs.begin(); i != refl.mPairs.end(); i++)
+        {
+                if((*i).first != (*i).second)
+                {
+                        std::pair<int, int> x((*i).first, (*i).first), y((*i).second, (*i).second);
+                        if(!q(x))
+                                refl.mPairs.insert(x);
+
+                        if(!q(y))
+                                refl.mPairs.insert(y);
+                }
+        }
+        return refl;
+}
+
+MyRel MyRel::symm_closure()
+{
+        MyRel symm(domain());
+        symm.add(pairSet());
+        for(std::set<std::pair<int, int>>::iterator i = symm.mPairs.begin(); i != symm.mPairs.end(); i++)
+        {
+                if((*i).first != (*i).second)
+                {
+                        std::pair<int, int> x((*i).second, (*i).first);
+                        if(!q(x))
+                                symm.mPairs.insert(x);
+                }
+        }
+        return symm; // Lovar Inge, ingen copy paste!
+}
+
+MyRel MyRel::comp(MyRel S)
+{
+        std::set<int> newSet;
+
+        newSet = mDomainSet;
+        newSet.insert(S.mDomainSet.begin(), S.mDomainSet.end());
+
+        MyRel _comp(newSet);
+
+        _comp.add(mPairs);
+        _comp.add(S.mPairs);
+
+        return _comp;
+}
+
+void MyRel::append(MyRel S)
+{
+        add(S.mPairs);
+}
+
+MyRel MyRel::trans_closure()
+{
+        MyRel trans(domain());
+                 trans.add(pairSet());
+
+        std::pair<int, int> transPair;
+        std::set<std::pair<int, int>> temp = trans.mPairs;
+
+        for(std::set<std::pair<int, int>>::iterator i = temp.begin(); i != temp.end(); i++)
+        {
+                for(std::set<std::pair<int, int>>::iterator j = temp.begin(); j != temp.end(); j++)
+                {
+                        if ( (*i).second == (*j).first )
+                        {
+                                transPair.first = (*i).first;
+                                transPair.second = (*j).second;
+
+                                if(!trans.q(transPair))
+                                {
+                                        trans.add(transPair);
+                                        temp.insert(transPair);
+                                        i = temp.begin();
+                                        j = temp.begin();
+
+                                        std::cout << "Added pair: {" << transPair.first << ", " << transPair.second << "}\n";
+                                }
+                        }
+                }
+        }
+        temp.clear();
+        return trans;
+}
+
+void MyRel::printSet()
+{
+        std::cout << "Set: ";
+        for(std::set<int>::iterator i = mDomainSet.begin(); i != mDomainSet.end(); i++)
+        {
+                std::cout << (*i) << " ";
+        }
+        std::cout << std::endl;
+}
+
+void MyRel::printPairs()
+{
+        std::cout << "Pairs: ";
+        for(std::set<std::pair<int, int>>::iterator i = mPairs.begin(); i != mPairs.end(); i++)
+        {
+                std::cout << "{" << (*i).first << ", " << (*i).second << "} ";
+        }
+        std::cout << std::endl;
 }
