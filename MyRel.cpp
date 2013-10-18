@@ -129,8 +129,6 @@ MyRel MyRel::trans_closure()
                                         temp.insert(transPair);
                                         i = temp.begin();
                                         j = temp.begin();
-
-                                        std::cout << "Added pair: {" << transPair.first << ", " << transPair.second << "}\n";
                                 }
                         }
                 }
